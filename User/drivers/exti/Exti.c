@@ -1,0 +1,192 @@
+/*************************************************************************************
+* FileName: Exti.c
+* Author:		will4906
+* Email:		553105821@qq.com
+* Date:			2017/02/14
+* Apache license:
+	Copyright 2017 will4906
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+**************************************************************************************/
+#include "Exti.h"
+#include "Uart.h"
+#include "delay.h"
+/*********************************************************************
+* Static Function Declaration
+**********************************************************************/
+static void InitExti(void);
+static void InitNvic(void);
+static void InitGpio(void);
+static u8 checkForInputBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+
+/*********************************************************************
+* Function: Initialize all Exti config
+* Param: 		void
+* Return: 	void
+**********************************************************************/
+void InitExtiCon(void)
+{
+	InitGpio();
+	InitExti();
+	InitNvic();
+}
+
+/*********************************************************************
+* Function: Initialize the Gpio config
+* Param: 		void
+* Return: 	void
+**********************************************************************/
+static void InitGpio(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure; 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO,ENABLE);
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	 // …œ¿≠ ‰»Î
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
+	
+	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource0);
+	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource1);
+}
+
+/*********************************************************************
+* Function: Initialize the exti config
+* Param: 		void
+* Return: 	void
+**********************************************************************/
+static void InitExti(void)
+{
+	EXTI_InitTypeDef EXTI_InitStructure;
+	
+	EXTI_InitStructure.EXTI_Line=EXTI_Line0;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStructure);
+	EXTI_InitStructure.EXTI_Line=EXTI_Line1;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStructure);
+}
+
+/*********************************************************************
+* Function: Initialize the Nvic config
+* Param: 		void
+* Return: 	void
+**********************************************************************/
+static void InitNvic(void)
+{
+	NVIC_InitTypeDef NVIC_InitStructure;
+	
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+}
+
+/*********************************************************************
+* Function: The interrupt handler function of the exti0
+* Param: 		void
+* Return: 	void
+**********************************************************************/
+static u8 zero = 0;
+static u8 one = 0;
+u8 big[50];
+void EXTI0_IRQHandler(void)
+{
+	u8 d = 0;
+	u8 err = 2;
+	u8 i = 0;
+	if (EXTI_GetITStatus(EXTI_Line0) == SET)
+	{
+		for(i = 0; i < 5; i ++)
+		{
+			if(GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_0) == 0)  //º∆À„¬ˆøÌ
+			{
+				delay_us(10);
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		if(i == 5)
+		{
+			SendUartData(UART_PORT_COM2, &d, 1);
+		}
+		
+		EXTI_ClearITPendingBit(EXTI_Line0);
+	}
+}
+
+/*********************************************************************
+* Function: The interrupt handler function of the exti1
+* Param: 		void
+* Return: 	void
+**********************************************************************/
+void EXTI1_IRQHandler(void)
+{
+	u8 d = 1;
+	u8 err = 3;
+	u8 i = 0;
+	if (EXTI_GetITStatus(EXTI_Line1) == SET)
+	{
+		for(i = 0; i < 5; i ++)
+		{
+			if(GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_1) == 0)  //º∆À„¬ˆøÌ
+			{
+				delay_us(10);
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		if(i == 5)
+		{
+			SendUartData(UART_PORT_COM2, &d, 1);
+		}
+		
+		EXTI_ClearITPendingBit(EXTI_Line1);
+	}
+}
+
+static u8 checkForInputBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+	u8 i;
+	for(i = 0; i < 5; i ++)
+	{
+		if(GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_0) == 0)  //º∆À„¬ˆøÌ
+		{
+			delay_us(10);
+		}
+		else
+		{
+			break;
+		}
+	}
+	return i == 5;
+}
+ 
+ 
+ 
