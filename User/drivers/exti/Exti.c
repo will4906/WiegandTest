@@ -21,13 +21,15 @@
 #include "Exti.h"
 #include "Uart.h"
 #include "delay.h"
+#include "wiegand.h"
+#include "UartCom2.h"
 /*********************************************************************
 * Static Function Declaration
 **********************************************************************/
 static void InitExti(void);
 static void InitNvic(void);
 static void InitGpio(void);
-static u8 checkForInputBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+
 
 /*********************************************************************
 * Function: Initialize all Exti config
@@ -48,13 +50,7 @@ void InitExtiCon(void)
 **********************************************************************/
 static void InitGpio(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure; 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO,ENABLE);
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	 // …œ¿≠ ‰»Î
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
 	
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource0);
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource1);
@@ -107,33 +103,11 @@ static void InitNvic(void)
 * Param: 		void
 * Return: 	void
 **********************************************************************/
-static u8 zero = 0;
-static u8 one = 0;
-u8 big[50];
 void EXTI0_IRQHandler(void)
 {
-	u8 d = 0;
-	u8 err = 2;
-	u8 i = 0;
 	if (EXTI_GetITStatus(EXTI_Line0) == SET)
 	{
-		for(i = 0; i < 5; i ++)
-		{
-			if(GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_0) == 0)  //º∆À„¬ˆøÌ
-			{
-				delay_us(10);
-			}
-			else
-			{
-				break;
-			}
-		}
-		
-		if(i == 5)
-		{
-			SendUartData(UART_PORT_COM2, &d, 1);
-		}
-		
+		AnswerDataZeroExti();
 		EXTI_ClearITPendingBit(EXTI_Line0);
 	}
 }
@@ -145,48 +119,13 @@ void EXTI0_IRQHandler(void)
 **********************************************************************/
 void EXTI1_IRQHandler(void)
 {
-	u8 d = 1;
-	u8 err = 3;
-	u8 i = 0;
 	if (EXTI_GetITStatus(EXTI_Line1) == SET)
 	{
-		for(i = 0; i < 5; i ++)
-		{
-			if(GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_1) == 0)  //º∆À„¬ˆøÌ
-			{
-				delay_us(10);
-			}
-			else
-			{
-				break;
-			}
-		}
-		
-		if(i == 5)
-		{
-			SendUartData(UART_PORT_COM2, &d, 1);
-		}
-		
+		AnswerDataOneExti();
 		EXTI_ClearITPendingBit(EXTI_Line1);
 	}
 }
 
-static u8 checkForInputBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
-{
-	u8 i;
-	for(i = 0; i < 5; i ++)
-	{
-		if(GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_0) == 0)  //º∆À„¬ˆøÌ
-		{
-			delay_us(10);
-		}
-		else
-		{
-			break;
-		}
-	}
-	return i == 5;
-}
- 
+
  
  

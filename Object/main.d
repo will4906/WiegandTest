@@ -35,3 +35,7 @@
 ..\object\main.o: .\drivers\usart\Uart.h
 ..\object\main.o: .\drivers\usart\datatype.h
 ..\object\main.o: .\drivers\exti\Exti.h
+..\object\main.o: .\drivers\wiegand\wiegand.h
+..\object\main.o: .\drivers\wiegand\UnpackWiegand.h
+..\object\main.o: ..\User\sqlist.h
+..\object\main.o: .\drivers\usart\UartCom2.h

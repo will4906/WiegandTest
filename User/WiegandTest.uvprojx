@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_CL,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\User;..\StCore;..\Stm32F10x_FwLib\inc;.\system;.\drivers;.\drivers\led;.\drivers\delay;.\drivers\usart;.\drivers\timer;.\drivers\exti</IncludePath>
+              <IncludePath>..\User;..\StCore;..\Stm32F10x_FwLib\inc;.\system;.\drivers;.\drivers\led;.\drivers\delay;.\drivers\usart;.\drivers\timer;.\drivers\exti;.\drivers\wiegand</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -563,6 +563,11 @@
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
+            <File>
+              <FileName>sqlist.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sqlist.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -602,6 +607,16 @@
               <FileName>Exti.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\drivers\exti\Exti.c</FilePath>
+            </File>
+            <File>
+              <FileName>wiegand.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\drivers\wiegand\wiegand.c</FilePath>
+            </File>
+            <File>
+              <FileName>UnpackWiegand.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\drivers\wiegand\UnpackWiegand.c</FilePath>
             </File>
           </Files>
         </Group>

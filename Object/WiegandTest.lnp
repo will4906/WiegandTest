@@ -27,6 +27,7 @@
 "..\object\stm32f10x_it.o"
 "..\object\system_stm32f10x.o"
 "..\object\main.o"
+"..\object\sqlist.o"
 "..\object\led.o"
 "..\object\delay.o"
 "..\object\uart.o"
@@ -34,6 +35,8 @@
 "..\object\totaltimer.o"
 "..\object\timer3.o"
 "..\object\exti.o"
+"..\object\wiegand.o"
+"..\object\unpackwiegand.o"
 --strict --scatter "..\Object\WiegandTest.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -32,3 +32,5 @@
 ..\object\exti.o: .\drivers\usart\Uart.h
 ..\object\exti.o: .\drivers\usart\datatype.h
 ..\object\exti.o: .\drivers\delay\delay.h
+..\object\exti.o: .\drivers\wiegand\wiegand.h
+..\object\exti.o: .\drivers\usart\UartCom2.h
